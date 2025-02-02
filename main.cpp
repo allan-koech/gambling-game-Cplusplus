@@ -3,7 +3,7 @@
 #include<typeinfo>
 
 // 1. Accept and update deposit from the customer;
-// 2. Get the number of bets from the customer
+// 2. Get the number of bets and the bet amount from the customer
 // 3. Spin the wheel
 // 4. Check if customer won
 // 5. Give the customer winnings
