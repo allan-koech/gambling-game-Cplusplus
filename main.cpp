@@ -2,7 +2,9 @@
 #include<string>
 #include<typeinfo>
 #include <vector>
-
+#include <cstdlib>
+#include <random>
+#include <chrono>
  using namespace std;
 
 // 1. Accept and update deposit from the customer;
@@ -13,9 +15,11 @@
 // 5. Give the customer winnings
 // 6. ask the customer to play again.
 int balance;
+int rows = 3;// number of letters from right to left
+int columns = 3;// number of letters from top to bottom
 struct DataPoint{
- string name;
- int value;
+string name;
+int value;
 };
 
 vector<string> generateLetterArray(const vector<DataPoint>& dataset){
@@ -81,6 +85,41 @@ do{
 return 0;
 }
 
+
+void getWinningLetters(vector<string> & letterarray, int rowsToGenerate, int columnsToGenerate){
+   int realTime;
+   int randomNo;
+   unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+   std::mt19937 gen(seed);
+   uniform_int_distribution<> distrib(0, letterarray.size() - 1);
+
+   vector<vector<string>> rows;
+
+   for(int i = 0; i< rowsToGenerate; i++){
+      vector<string> column;
+      for(int j = 0; j< columnsToGenerate; j++){
+      vector<string> letterArray(letterarray);
+      unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+      mt19937 gen(seed);
+      randomNo = distrib(gen);
+      column.push_back(letterArray[randomNo]);
+      if(j== columnsToGenerate - 1 ){
+         rows.push_back(column);
+         };
+      //cout << letterArray[randomNo] << "\n";
+      //cout << randomNo << "\n";
+      }
+}
+for(int i = 0; i<= rows.size(); ++i){
+   cout << rows.size() << "\n";
+   for(int j = 0; j <rows[i].size(); ++j ){
+      cout<< rows[i].size()<< "\n";
+      vector<string> view = rows[i];
+      cout << view[j] << "\n";
+   }
+}
+
+}
 void spinWheel(){
 vector<DataPoint> letterSet = {
    {"A", 2},
@@ -89,8 +128,11 @@ vector<DataPoint> letterSet = {
    {"D", 8}
 };
 vector<string> letterArray = generateLetterArray(letterSet);
+getWinningLetters(letterArray, rows, columns);
+
 
 }
+
 
 
 
