@@ -17,6 +17,9 @@
 int balance;
 int rows = 3;// number of letters from right to left
 int columns = 3;// number of letters from top to bottom
+double betPerLine;
+int numberOfLines = 3;
+double totalBetAmount;
 struct DataPoint{
 string name;
 int value;
@@ -31,6 +34,7 @@ vector<string> generateLetterArray(const vector<DataPoint>& dataset){
    }
    return letterArray;
 }
+
 
 
 
@@ -57,9 +61,7 @@ int collectDeposit(){
    return 0;
 };
 int getBetAmount(){
-double betPerLine;
-int numberOfLines;
-double totalBetAmount;
+
 bool checkAmount = true;
 do{
 cout << "Enter the number of Lines you would like to bet on";
@@ -86,7 +88,7 @@ return 0;
 }
 
 
-void getWinningLetters(vector<string> & letterarray, int rowsToGenerate, int columnsToGenerate){
+vector <vector<string>> getWinningLetters(vector<string> & letterarray, int rowsToGenerate, int columnsToGenerate){
    int realTime;
    int randomNo;
    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
@@ -102,25 +104,29 @@ void getWinningLetters(vector<string> & letterarray, int rowsToGenerate, int col
       unsigned seed = chrono::system_clock::now().time_since_epoch().count();
       mt19937 gen(seed);
       randomNo = distrib(gen);
+      cout << randomNo << "\n";
       column.push_back(letterArray[randomNo]);
       if(j== columnsToGenerate - 1 ){
          rows.push_back(column);
          };
-      //cout << letterArray[randomNo] << "\n";
-      //cout << randomNo << "\n";
       }
 }
-for(int i = 0; i<= rows.size(); ++i){
-   cout << rows.size() << "\n";
-   for(int j = 0; j <rows[i].size(); ++j ){
-      cout<< rows[i].size()<< "\n";
-      vector<string> view = rows[i];
-      cout << view[j] << "\n";
-   }
-}
 
-}
-void spinWheel(){
+vector<vector<string>> transposed(rows[0].size(), std::vector<std::string>(rows.size()));
+for (int i =0; i< rows.size(); ++i){
+   for(int j = 0; j< rows[i].size(); ++j){
+      transposed[j][i] = rows[i][j];
+      }}
+for (int i =0; i< transposed.size(); ++i){
+   for(int j = 0; j< transposed[i].size(); ++j){
+      cout << transposed[i][j] << "|";
+      }}
+
+
+return transposed;
+};
+
+vector<vector<string>> spinWheel(){
 vector<DataPoint> letterSet = {
    {"A", 2},
    {"B", 4},
@@ -128,17 +134,46 @@ vector<DataPoint> letterSet = {
    {"D", 8}
 };
 vector<string> letterArray = generateLetterArray(letterSet);
-getWinningLetters(letterArray, rows, columns);
+vector<vector<string>> selectedLetters = getWinningLetters(letterArray, rows, columns);
 
+return selectedLetters;
 
 }
 
+void checkWin(vector<vector<string>> selectedLetters ){
+   vector <DataPoint> letterWin = {
+   {"A", 8},
+   {"B", 6},
+   {"C", 4},
+   {"D", 2}
+   };
+   int winnings;
+   for(int i = 0; i < numberOfLines; ++i){ // checks the number of lines the customer bet on;
+      cout << "Checking row"<< i+1;
+      bool allSame = true;
+      for(int j = 0; j < selectedLetters[i].size(); ++j ){// selects the individual letters in the array to check
+         if(selectedLetters[i][i] != selectedLetters[i][j]){
+            allSame = false;
+            break;
+         } }
+      if(allSame){
+         int multiplier;
+         cout<< "You won row"<< i+1;
+         for(const auto &eachSet : letterWin){// picks the multiplier by comparing it to a value in the array won;
+            if(eachSet.name == selectedLetters[i][i]){
+               winnings = eachSet.value * betPerLine;
+               balance += winnings;
+            }
+         }}}
+         }
 
 
 
 int main(){
   //collectDeposit();
-  // getBetAmount();
-  spinWheel();
+  //getBetAmount();
+  
+  checkWin(spinWheel());
+
    return 0;
 }
