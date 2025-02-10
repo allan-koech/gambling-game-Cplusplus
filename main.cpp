@@ -15,10 +15,13 @@
 // 5. Give the customer winnings
 // 6. ask the customer to play again.
 int balance;
-int rows = 3;// number of letters from right to left
-int columns = 3;// number of letters from top to bottom
+const int rows = 3;// number of letters from right to left
+const int columns = 5;// number of letters from top to bottom
+bool playGame = true;
+
+
 double betPerLine;
-int numberOfLines = 3;
+int numberOfLines;
 double totalBetAmount;
 struct DataPoint{
 string name;
@@ -34,11 +37,12 @@ vector<string> generateLetterArray(const vector<DataPoint>& dataset){
    }
    return letterArray;
 }
-
-
-
-
-
+int getRandomIndex(int maxIndex) {
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    mt19937 gen(seed);
+    uniform_int_distribution<> distrib(0, maxIndex);
+    return distrib(gen);
+}
 
 
 int collectDeposit(){
@@ -66,10 +70,10 @@ bool checkAmount = true;
 do{
 cout << "Enter the number of Lines you would like to bet on";
 cin >> numberOfLines;
-if (numberOfLines < 1 || numberOfLines > 3) {
-            cout << "Invalid input! Please enter a number between 1 and 3.";
+if (numberOfLines < 1 || numberOfLines > columns) {
+            cout << "Invalid input! Please enter a number between 1 and "<< columns;
         }
-}while ( numberOfLines < 1 ||numberOfLines > 3 );
+}while ( numberOfLines < 1 ||numberOfLines > columns);
 
 do{
    cout << "Enter the amount you would like to bet on per line ";
@@ -91,9 +95,6 @@ return 0;
 vector <vector<string>> getWinningLetters(vector<string> & letterarray, int rowsToGenerate, int columnsToGenerate){
    int realTime;
    int randomNo;
-   unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-   std::mt19937 gen(seed);
-   uniform_int_distribution<> distrib(0, letterarray.size() - 1);
 
    vector<vector<string>> rows;
 
@@ -101,11 +102,9 @@ vector <vector<string>> getWinningLetters(vector<string> & letterarray, int rows
       vector<string> column;
       for(int j = 0; j< columnsToGenerate; j++){
       vector<string> letterArray(letterarray);
-      unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-      mt19937 gen(seed);
-      randomNo = distrib(gen);
-      cout << randomNo << "\n";
+      randomNo = getRandomIndex(letterarray.size() - 1);
       column.push_back(letterArray[randomNo]);
+      cout<< letterArray.size();
       if(j== columnsToGenerate - 1 ){
          rows.push_back(column);
          };
@@ -118,6 +117,7 @@ for (int i =0; i< rows.size(); ++i){
       transposed[j][i] = rows[i][j];
       }}
 for (int i =0; i< transposed.size(); ++i){
+   cout<< "\n";
    for(int j = 0; j< transposed[i].size(); ++j){
       cout << transposed[i][j] << "|";
       }}
@@ -152,28 +152,60 @@ void checkWin(vector<vector<string>> selectedLetters ){
       cout << "Checking row"<< i+1;
       bool allSame = true;
       for(int j = 0; j < selectedLetters[i].size(); ++j ){// selects the individual letters in the array to check
-         if(selectedLetters[i][i] != selectedLetters[i][j]){
+         if(selectedLetters[i][0] != selectedLetters[i][j]){
             allSame = false;
             break;
          } }
       if(allSame){
          int multiplier;
-         cout<< "You won row"<< i+1;
+         cout<< "You won row "<< i+1 << "\n";
          for(const auto &eachSet : letterWin){// picks the multiplier by comparing it to a value in the array won;
             if(eachSet.name == selectedLetters[i][i]){
                winnings = eachSet.value * betPerLine;
                balance += winnings;
+               cout << "You won: " << winnings << "on row"<< i+1;
+               cout<< "Your balance is: " << balance << "\n";
             }
          }}}
          }
 
 
+void askUserToContinue(){
+
+   cout<< " Game Over. Your balance is : "<< balance << "\n";
+   if(balance != 0){
+      string customerResponse;
+      cout << "Would You like to play again(Y/n)";
+      cin >> customerResponse;
+      if(customerResponse != "Y"){
+
+         playGame = false;
+         return;
+      }
+      } else{
+         string customerResponse;
+         cout << "You do not have enough money. Would You like to Deposit(Y/n)";
+         cin >> customerResponse;
+         if(customerResponse != "Y"){
+            playGame = false;
+            return;
+         } else{
+         collectDeposit();
+         askUserToContinue();
+         return;
+         }
+         
+      }
+}
 
 int main(){
-  //collectDeposit();
-  //getBetAmount();
+  collectDeposit();
   
+   
+while (playGame){
+   getBetAmount();
   checkWin(spinWheel());
-
-   return 0;
+  askUserToContinue();
+}
+return 0;
 }
